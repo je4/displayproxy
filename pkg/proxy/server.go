@@ -67,16 +67,16 @@ type SocketServer struct {
 	staticFS          fs.FS
 }
 
-func (ss *SocketServer) getTemplate(name string) (*template.Template, error) {
-	if tmpl, ok := ss.templates[name]; ok {
+func (srv *SocketServer) getTemplate(name string) (*template.Template, error) {
+	if tmpl, ok := srv.templates[name]; ok {
 		return tmpl, nil
 	}
-	tmpl, err := template.New(name).ParseFS(ss.templateFS, name)
+	tmpl, err := template.New(name).ParseFS(srv.templateFS, name)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to parse template %s", name)
 	}
-	if !ss.debug {
-		ss.templates[name] = tmpl
+	if !srv.debug {
+		srv.templates[name] = tmpl
 	}
 	return tmpl, nil
 }
@@ -133,7 +133,7 @@ func (srv *SocketServer) Start(tlsConfig *tls.Config) error {
 			return
 		}
 		if err := controlTemplate.Execute(c.Writer, struct{ Addr, Name string }{
-			Addr: "ws://" + c.Request.Host + "/ws/" + name,
+			Addr: "wss://" + c.Request.Host + "/ws/" + name,
 			Name: name}); err != nil {
 			srv.logger.Error().Err(err).Msg("Failed to execute template")
 		}
@@ -149,7 +149,7 @@ func (srv *SocketServer) Start(tlsConfig *tls.Config) error {
 			return
 		}
 		if err := roundaudioTemplate.Execute(c.Writer, struct{ Addr, Name string }{
-			Addr: "ws://" + c.Request.Host + "/ws/" + name,
+			Addr: "wss://" + c.Request.Host + "/ws/" + name,
 			Name: name}); err != nil {
 			srv.logger.Error().Err(err).Msg("Failed to execute template")
 		}
@@ -165,7 +165,7 @@ func (srv *SocketServer) Start(tlsConfig *tls.Config) error {
 			return
 		}
 		if err := testTemplate.Execute(c.Writer, struct{ Addr, Name string }{
-			Addr: "ws://" + c.Request.Host + "/ws/" + name,
+			Addr: "wss://" + c.Request.Host + "/ws/" + name,
 			Name: name}); err != nil {
 			srv.logger.Error().Err(err).Msg("Failed to execute template")
 		}
